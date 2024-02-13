@@ -1,9 +1,10 @@
 import sys
 import os
-from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout,
+from PyQt5.QtWidgets import (QApplication, QSplashScreen, QWidget, QPushButton, QVBoxLayout,
                              QFileDialog, QLabel, QTextEdit, QCheckBox,
                              QMessageBox, QLineEdit, QFormLayout, QGroupBox, QSlider, QHBoxLayout)
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
+from PyQt5.QtGui import QPixmap
 from PIL import Image
 
 class ImageOptimizerThread(QThread):
@@ -20,6 +21,7 @@ class ImageOptimizerThread(QThread):
         self.quality = quality
 
     def run(self):
+        # Check for custom size and add to sizes if valid
         if self.custom_size and self.custom_suffix:
             try:
                 self.sizes.append({"width": int(self.custom_size), "suffix": self.custom_suffix})
@@ -27,10 +29,12 @@ class ImageOptimizerThread(QThread):
                 self.update_progress.emit(f"Error: Custom width '{self.custom_size}' is not valid.")
                 return
 
+        # Process each file for each size and format
         for file in self.files:
             filename, ext = os.path.splitext(os.path.basename(file))
             for size in self.sizes:
                 with Image.open(file) as img:
+                    # Calculate new height maintaining aspect ratio
                     w_percent = (size["width"] / float(img.size[0]))
                     h_size = int((float(img.size[1]) * float(w_percent)))
                     img_resized = img.resize((size["width"], h_size), Image.ANTIALIAS)
@@ -45,6 +49,7 @@ class App(QWidget):
         super().__init__()
         self.title = 'Image Optimizer'
         self.initUI()
+        self.files = []  # Initialize files list to ensure it's available
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -52,18 +57,21 @@ class App(QWidget):
 
         layout = QVBoxLayout()
 
+        # Instructions label
         self.label = QLabel('Select images and output folder, then choose formats, sizes, quality, and start optimization.')
         layout.addWidget(self.label)
 
+        # Select Images button
         btn_select_files = QPushButton('Select Images')
         btn_select_files.clicked.connect(self.select_files)
         layout.addWidget(btn_select_files)
 
+        # Select Output Folder button
         self.btn_select_output_folder = QPushButton('Select Output Folder')
         self.btn_select_output_folder.clicked.connect(self.select_output_folder)
         layout.addWidget(self.btn_select_output_folder)
 
-        # Formats selection
+        # Format selection group
         self.format_group = QGroupBox("Formats")
         format_layout = QVBoxLayout()
         self.format_options = {
@@ -77,7 +85,7 @@ class App(QWidget):
         self.format_group.setLayout(format_layout)
         layout.addWidget(self.format_group)
 
-        # Sizes selection
+        # Size selection group
         self.size_group = QGroupBox("Sizes")
         size_layout = QVBoxLayout()
         self.size_options = {
@@ -93,7 +101,7 @@ class App(QWidget):
         self.size_group.setLayout(size_layout)
         layout.addWidget(self.size_group)
 
-        # Custom size and suffix
+        # Custom size and suffix input group
         self.custom_size_group = QGroupBox("Custom Size")
         custom_size_layout = QFormLayout()
         self.custom_width_input = QLineEdit()
@@ -103,7 +111,7 @@ class App(QWidget):
         self.custom_size_group.setLayout(custom_size_layout)
         layout.addWidget(self.custom_size_group)
 
-        # Quality slider
+        # Quality slider group
         self.quality_group = QGroupBox("Quality")
         quality_layout = QHBoxLayout()
         self.quality_slider = QSlider(Qt.Horizontal)
@@ -119,10 +127,12 @@ class App(QWidget):
         self.quality_group.setLayout(quality_layout)
         layout.addWidget(self.quality_group)
 
+        # Progress text area
         self.progress_text = QTextEdit()
         self.progress_text.setReadOnly(True)
         layout.addWidget(self.progress_text)
 
+        # Start Optimization button
         btn_start_optimization = QPushButton('Start Optimization')
         btn_start_optimization.clicked.connect(self.start_optimization)
         layout.addWidget(btn_start_optimization)
@@ -149,6 +159,7 @@ class App(QWidget):
         custom_suffix = self.custom_suffix_input.text().strip()
         quality = self.quality_slider.value()
 
+        # Check if required selections are made before starting optimization
         if not self.files or not self.output_folder or not selected_formats or not selected_sizes and not (custom_size and custom_suffix):
             QMessageBox.warning(self, "Warning", "Please select images, an output folder, at least one format, and at least one size.")
             return
