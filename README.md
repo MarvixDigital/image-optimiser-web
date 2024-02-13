@@ -18,7 +18,7 @@ Image Optimizer is a PyQt5-based GUI application designed to help users easily o
 
 ### Setup
 1. Clone the repository to your local machine:
-git clone https://github.com/yourusername/image-optimizer.git
+git clone https://github.com/MarvixDigital/image-optimiser-web
 
 2. Navigate to the cloned directory:
 cd image-optimizer
