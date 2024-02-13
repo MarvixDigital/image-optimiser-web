@@ -16,9 +16,16 @@ Image Optimizer is a PyQt5-based GUI application designed to help users easily o
 - PyQt5
 - Pillow
 
-### Setup
+## Setup
+
+### Prerequisites
+- Python 3.6 or higher
+- PyQt5
+- Pillow
+
+### Installation
 1. Clone the repository to your local machine:
-git clone https://github.com/MarvixDigital/image-optimiser-web
+git clone https://github.com/yourusername/image-optimizer.git
 
 2. Navigate to the cloned directory:
 cd image-optimizer
@@ -26,8 +33,31 @@ cd image-optimizer
 3. Install the required Python packages:
 pip install -r requirements.txt
 
-## Usage
-To start the application, run:
-python app.py
+### Building Executable Files
 
-Follow the GUI prompts to select images, choose output settings, and start the optimization process.
+#### For Windows
+To create an executable for Windows, you can use PyInstaller. If PyInstaller is not already installed, you can install it using pip:
+pip install pyinstaller
+
+Then, build the executable with the following command:
+pyinstaller --onefile --windowed optimizePhotosForWeb.py
+
+This command tells PyInstaller to bundle `optimizePhotosForWeb.py` into a single executable file (`--onefile`) without a console window (`--windowed`). The executable will be located in the `dist` directory.
+
+#### For macOS
+Building an executable for macOS is similar, but you might want to specify an icon for the application. First, ensure PyInstaller is installed:
+pip install pyinstaller
+
+Then, use PyInstaller to build the macOS application:
+pyinstaller --onefile --windowed optimizePhotosForWeb.py
+
+For macOS, if you have an icon file (e.g., `icon.icns`), you can include it with the `--icon` option:
+pyinstaller --onefile --windowed --icon=icon.icns optimizePhotosForWeb.py
+
+The application will be created in the `dist` directory.
+
+## Usage
+To start the application, if not using an executable, run:
+python optimizePhotosForWeb.py
+
+For executables, simply launch the created executable file from the `dist` directory.
