@@ -40,7 +40,7 @@ class ImageOptimizerThread(QThread):
                 with Image.open(file) as img:
                     w_percent = (size["width"] / float(img.size[0]))
                     h_size = int((float(img.size[1]) * float(w_percent)))
-                    img_resized = img.resize((size["width"], h_size), Image.ANTIALIAS)
+                    img_resized = img.resize((size["width"], h_size), Image.Resampling.LANCZOS)
                     for format in self.export_formats:
                         output_filename = f"{filename}-{size['suffix']}.{format}"
                         output_path = os.path.join(self.output_folder, output_filename)
@@ -110,7 +110,7 @@ class App(QWidget):
         Opens a file dialog to select images.
         """
         options = QFileDialog.Options()
-        files, _ = QFileDialog.getOpenFileNames(self, "Select Images", "", "Image Files (*.jpg *.jpeg *.png)", options=options)
+        files, _ = QFileDialog.getOpenFileNames(self, "Select Images", "", "Image Files (*.jpg *.jpeg *.png *.webp)", options=options)
         if files:
             self.files = files
             self.label.setText(f"{len(files)} files selected")
